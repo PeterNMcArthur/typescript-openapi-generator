@@ -1,6 +1,6 @@
 {
   "name": "typescript-openapi-generator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Generate OpenAPI specifications from TypeScript types for distributed typescript projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -27,9 +27,9 @@
   },
   "homepage": "https://github.com/petermcarthur/typescript-openapi-generator#readme",
   "dependencies": {
-    "typescript": "^4.9.5",
+    "openapi3-ts": "^3.0.0",
     "ts-morph": "^17.0.1",
-    "openapi3-ts": "^3.0.0"
+    "typescript": "^4.9.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",
