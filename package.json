@@ -1,6 +1,6 @@
 {
   "name": "ts-to-openapi-spec",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Generate OpenAPI specifications from TypeScript types for distributed typescript projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
