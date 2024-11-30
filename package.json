@@ -1,6 +1,6 @@
 {
   "name": "typescript-openapi-generator",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Generate OpenAPI specifications from TypeScript types for distributed typescript projects",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
