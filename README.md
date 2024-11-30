@@ -6,8 +6,15 @@
 
 ## Features
 
-- Generate OpenAPI 3.0 specifications
-- Composable route definitions
+- Generate OpenAPI 3.0 specifications from TypeScript types
+- Composable route definitions with rich metadata
+- Automatic type inference and schema generation
+- Support for path parameters with validation
+- Query parameter definitions with optional/required flags
+- Request and response header management
+- Multiple response type definitions
+- Security scheme configurations
+- Server configurations for different environments
 - Type-driven API documentation
 - Easy integration with AWS Lambda functions
 
@@ -25,27 +32,83 @@ import OpenAPIGenerator from 'lambda-openapi-generator';
 // Create a generator instance
 const generator = new OpenAPIGenerator('My Lambda API', '1.0.0');
 
-// Define routes with type information
-generator
-  .addRoute({
-    path: '/users',
-    method: 'get',
-    description: 'Retrieve list of users',
-    responseType: 'UserList'
-  })
-  .addRoute({
-    path: '/users',
-    method: 'post',
-    description: 'Create a new user',
-    requestType: 'CreateUserRequest',
-    responseType: 'User'
-  });
+// Add server configurations
+generator.addServer({
+  url: 'https://api.example.com',
+  description: 'Production server'
+});
+
+// Add security schemes
+generator.addSecurityScheme('bearerAuth', {
+  type: 'http',
+  scheme: 'bearer',
+  bearerFormat: 'JWT'
+});
+
+// Define routes with comprehensive configurations
+generator.addRoute({
+  path: '/users/{userId}',
+  method: 'get',
+  description: 'Retrieve a user by ID',
+  parameters: {
+    userId: {
+      description: 'The unique identifier of the user'
+    }
+  },
+  queryParameters: [{
+    name: 'include',
+    description: 'Fields to include in the response',
+    required: false,
+    schema: { type: 'string' }
+  }],
+  headers: {
+    request: [{
+      name: 'x-api-key',
+      description: 'API Key for authentication',
+      required: true,
+      schema: { type: 'string' }
+    }],
+    response: [{
+      name: 'x-rate-limit',
+      description: 'Rate limit information',
+      schema: { type: 'integer' }
+    }]
+  },
+  responses: [{
+    statusCode: 200,
+    description: 'Successful response',
+    type: 'User'
+  }, {
+    statusCode: 404,
+    description: 'User not found',
+    type: 'Error'
+  }],
+  security: ['bearerAuth']
+});
 
 // Generate the OpenAPI specification
 const spec = generator.generateSpec();
 
-// Optionally write to a file
+// Write to a file
 generator.writeSpecToFile('./openapi.json');
+```
+
+## Type Definitions
+
+The generator automatically infers OpenAPI schemas from your TypeScript types:
+
+```typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+}
+
+interface Error {
+  code: string;
+  message: string;
+}
 ```
 
 ## Advanced Usage

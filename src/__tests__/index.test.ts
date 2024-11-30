@@ -255,20 +255,18 @@ describe('OpenAPIGenerator', () => {
     generator.addRoute({
       path: '/users',
       method: 'get',
-      queryParameters: [
-        {
-          name: 'page',
+      queryParameters: {
+        page: {
           required: false,
           schema: { type: 'integer', minimum: 1 },
           description: 'Page number'
         },
-        {
-          name: 'limit',
+        limit: {
           required: false,
           schema: { type: 'integer', minimum: 1, maximum: 100 },
           description: 'Items per page'
         }
-      ],
+      },
       responses: [
         {
           statusCode: 200,

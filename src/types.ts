@@ -102,7 +102,9 @@ export type RouteDefinition = {
   parameters?: {
     [key: string]: PathParameterDefinition;
   };
-  queryParameters?: QueryParameter[];
+  queryParameters?: {
+    [key: string]: Omit<QueryParameter, 'name'>;
+  };
   headers?: {
     request?: HeaderDefinition[];
     response?: HeaderDefinition[];

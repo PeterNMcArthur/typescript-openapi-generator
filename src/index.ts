@@ -91,9 +91,9 @@ export class OpenAPIGenerator {
 
     // Handle query parameters
     if (route.queryParameters) {
-      route.queryParameters.forEach(param => {
+      Object.entries(route.queryParameters).forEach(([name, param]) => {
         parameters.push({
-          name: param.name,
+          name,
           in: 'query',
           required: param.required,
           schema: param.schema as SchemaObject,
