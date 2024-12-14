@@ -1,8 +1,8 @@
-# Lambda OpenAPI Generator
+# TS to OpenAPI Spec
 
 ## Overview
 
-`lambda-openapi-generator` is a TypeScript library that helps you generate OpenAPI (Swagger) specifications for AWS Lambda functions with ease. It provides a simple, composable interface for creating API documentation directly from your TypeScript types.
+`ts-to-openapi-spec` is a TypeScript library that helps you generate OpenAPI (Swagger) specifications for AWS Lambda functions with ease. It provides a simple, composable interface for creating API documentation directly from your TypeScript types.
 
 ## Features
 
@@ -21,13 +21,13 @@
 ## Installation
 
 ```bash
-npm install lambda-openapi-generator
+npm install ts-to-openapi-spec
 ```
 
 ## Basic Usage
 
 ```typescript
-import OpenAPIGenerator from 'lambda-openapi-generator';
+import OpenAPIGenerator from 'ts-to-openapi-spec';
 
 // Create a generator instance
 const generator = new OpenAPIGenerator('My Lambda API', '1.0.0');

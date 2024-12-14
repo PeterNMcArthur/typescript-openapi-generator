@@ -1,6 +1,6 @@
-# Contributing to Lambda OpenAPI Generator
+# Contributing to TS to OpenAPI Spec
 
-We love your input! We want to make contributing to Lambda OpenAPI Generator as easy and transparent as possible, whether it's:
+We love your input! We want to make contributing to TS to OpenAPI Spec as easy and transparent as possible, whether it's:
 
 - Reporting a bug
 - Discussing the current state of the code
