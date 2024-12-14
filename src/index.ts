@@ -32,14 +32,21 @@ export class OpenAPIGenerator {
   private project: Project;
   private typeChecker: any;
 
-  constructor(title?: string, version?: string) {
+  constructor(title?: string, version?: string, sourceFiles?: string[]) {
     if (title) this.spec.info.title = title;
     if (version) this.spec.info.version = version;
 
     this.project = new Project({
       tsConfigFilePath: 'tsconfig.json',
     });
-    this.project.addSourceFileAtPath('src/types.ts');
+    
+    // Add source files if provided, otherwise use default
+    if (sourceFiles && sourceFiles.length > 0) {
+      sourceFiles.forEach(file => this.project.addSourceFileAtPath(file));
+    } else {
+      this.project.addSourceFileAtPath('src/types.ts');
+    }
+    
     const program = this.project.getProgram();
     this.typeChecker = program.getTypeChecker();
   }
@@ -189,9 +196,24 @@ export class OpenAPIGenerator {
   }
 
   private extractTypeSchema(typeName: string): SchemaObject {
-    const sourceFile = this.project.getSourceFileOrThrow('src/types.ts');
-    const type = sourceFile.getTypeAliasOrThrow(typeName);
-    const tsType = type.getType();
+    // Search for the type in all source files
+    const sourceFiles = this.project.getSourceFiles();
+    let typeAlias = null;
+    
+    for (const sourceFile of sourceFiles) {
+      try {
+        typeAlias = sourceFile.getTypeAlias(typeName);
+        if (typeAlias) break;
+      } catch (error) {
+        continue;
+      }
+    }
+    
+    if (!typeAlias) {
+      throw new Error(`Type '${typeName}' not found in any source files`);
+    }
+
+    const tsType = typeAlias.getType();
     
     // Register the schema in components
     const schema = this.getSchemaForType(tsType);

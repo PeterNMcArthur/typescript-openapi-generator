@@ -3,8 +3,12 @@ import OpenAPIGenerator from '../index';
 import { RouteDefinition } from '../types';
 
 describe('OpenAPIGenerator', () => {
+  const TEST_FILES = [
+    'src/__tests__/fixtures/types.ts'
+  ];
+
   it('should create a basic OpenAPI specification', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     generator.addRoute({
       path: '/users',
@@ -42,7 +46,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should support multiple route compositions', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     generator
       .addRoute({
@@ -70,7 +74,7 @@ describe('OpenAPIGenerator', () => {
     const path = require('path');
     const tmpFile = path.join(__dirname, 'test-spec.json');
     
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     generator.addRoute({
       path: '/test',
       method: 'get',
@@ -89,7 +93,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should generate correct schema for UserList type', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     generator.addRoute({
       path: '/users',
@@ -119,7 +123,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should include UserType enum in components schema', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     // Use the User type which contains UserType enum
     generator.addRoute({
@@ -153,7 +157,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should properly handle path parameters', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     generator.addRoute({
       path: '/users/{userId}',
@@ -221,7 +225,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should support security schemes', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     generator.addSecurityScheme('bearerAuth', {
       type: 'http',
@@ -250,7 +254,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should support query parameters', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     generator.addRoute({
       path: '/users',
@@ -284,7 +288,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should support custom headers', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     generator.addRoute({
       path: '/users',
@@ -323,7 +327,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should support server configurations', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     generator.addServer({
       url: 'https://api.example.com/v1',
@@ -349,7 +353,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should add multiple routes using addRoutes method', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     const routes: RouteDefinition[] = [
         {
@@ -375,7 +379,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should not alter spec when addRoutes is called with an empty array', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     generator.addRoutes([]);
     const spec = generator.generateSpec();
@@ -384,7 +388,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should handle multiple route types correctly', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     const routes: RouteDefinition[] = [
         {
@@ -410,7 +414,7 @@ describe('OpenAPIGenerator', () => {
   });
 
   it('should validate responses for added routes', () => {
-    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    const generator = new OpenAPIGenerator('Test API', '1.0.0', TEST_FILES);
     
     const routes: RouteDefinition[] = [
         {
