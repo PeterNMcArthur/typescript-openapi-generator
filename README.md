@@ -7,6 +7,7 @@
 ## Features
 
 - Generate OpenAPI 3.0 specifications from TypeScript types
+- Project-based configuration with glob pattern support
 - Composable route definitions with rich metadata
 - Automatic type inference and schema generation
 - Support for path parameters with validation
@@ -29,8 +30,16 @@ npm install ts-to-openapi-spec
 ```typescript
 import OpenAPIGenerator from 'ts-to-openapi-spec';
 
-// Create a generator instance
-const generator = new OpenAPIGenerator('My Lambda API', '1.0.0');
+// Create a generator instance with project configuration
+const generator = await OpenAPIGenerator.create({
+  title: 'My Lambda API',
+  version: '1.0.0',
+  project: {
+    rootDir: 'src',
+    include: ['**/*.ts'],       // Include all TypeScript files
+    exclude: ['**/*.test.ts']   // Exclude test files
+  }
+});
 
 // Add server configurations
 generator.addServer({
@@ -49,76 +58,176 @@ generator.addSecurityScheme('bearerAuth', {
 generator.addRoute({
   path: '/users/{userId}',
   method: 'get',
-  description: 'Retrieve a user by ID',
+  description: 'Get user by ID',
   parameters: {
     userId: {
-      description: 'The unique identifier of the user'
+      description: 'The user ID'
     }
   },
-  queryParameters: [{
-    name: 'include',
-    description: 'Fields to include in the response',
-    required: false,
-    schema: { type: 'string' }
-  }],
-  headers: {
-    request: [{
-      name: 'x-api-key',
-      description: 'API Key for authentication',
-      required: true,
-      schema: { type: 'string' }
-    }],
-    response: [{
-      name: 'x-rate-limit',
-      description: 'Rate limit information',
-      schema: { type: 'integer' }
-    }]
-  },
-  responses: [{
-    statusCode: 200,
-    description: 'Successful response',
-    type: 'User'
-  }, {
-    statusCode: 404,
-    description: 'User not found',
-    type: 'Error'
-  }],
-  security: ['bearerAuth']
+  responses: [
+    {
+      statusCode: 200,
+      description: 'User found',
+      type: 'User'  // References your TypeScript type
+    },
+    {
+      statusCode: 404,
+      description: 'User not found',
+      type: 'ErrorResponse'
+    }
+  ]
 });
 
 // Generate the OpenAPI specification
 const spec = generator.generateSpec();
-
-// Write to a file
-generator.writeSpecToFile('./openapi.json');
 ```
 
-## Type Definitions
+## Project Configuration
 
-The generator automatically infers OpenAPI schemas from your TypeScript types:
+The library now uses a project-based configuration approach, making it easier to work with TypeScript files across your project:
 
 ```typescript
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: Date;
-}
+type ProjectConfig = {
+  rootDir: string;        // Root directory for TypeScript files
+  include: string[];      // Glob patterns for files to include
+  exclude?: string[];     // Optional glob patterns for files to exclude
+};
 
-interface Error {
-  code: string;
-  message: string;
-}
+type GeneratorConfig = {
+  title?: string;         // API title
+  version?: string;       // API version
+  project: ProjectConfig; // Project configuration
+};
 ```
 
-## Advanced Usage
+### Example Configurations
 
-The library supports complex route compositions and can be extended to handle more sophisticated type mappings.
+1. Basic configuration:
+```typescript
+const config = {
+  title: 'My API',
+  version: '1.0.0',
+  project: {
+    rootDir: 'src',
+    include: ['**/*.ts']
+  }
+};
+```
+
+2. With exclusions:
+```typescript
+const config = {
+  title: 'My API',
+  version: '1.0.0',
+  project: {
+    rootDir: 'src',
+    include: ['**/*.ts'],
+    exclude: ['**/*.test.ts', '**/*.spec.ts']
+  }
+};
+```
+
+3. Multiple source directories:
+```typescript
+const config = {
+  title: 'My API',
+  version: '1.0.0',
+  project: {
+    rootDir: 'src',
+    include: ['types/**/*.ts', 'models/**/*.ts']
+  }
+};
+```
+
+## Type Discovery
+
+The library will automatically discover and process TypeScript types from all files matching your project configuration. This means you can:
+
+1. Organize your types across multiple files
+2. Use types from any file in your project
+3. Exclude test files or other non-API types
+4. Keep your API documentation close to your type definitions
+
+## Examples
+
+### Complex Route Definition
+
+```typescript
+generator.addRoute({
+  path: '/users',
+  method: 'get',
+  description: 'Search users',
+  queryParameters: {
+    name: {
+      required: false,
+      schema: {
+        type: 'string'
+      },
+      description: 'Filter by name'
+    }
+  },
+  headers: {
+    request: [
+      {
+        name: 'X-API-Key',
+        required: true,
+        schema: {
+          type: 'string'
+        }
+      }
+    ]
+  },
+  security: ['bearerAuth'],
+  responses: [
+    {
+      statusCode: 200,
+      description: 'Users found',
+      type: 'UserList'
+    }
+  ]
+});
+```
+
+### Multiple Routes
+
+```typescript
+generator.addRoutes([
+  {
+    path: '/users',
+    method: 'post',
+    description: 'Create user',
+    requestType: 'CreateUserRequest',
+    responses: [
+      {
+        statusCode: 201,
+        description: 'User created',
+        type: 'User'
+      }
+    ]
+  },
+  {
+    path: '/users/{userId}',
+    method: 'delete',
+    description: 'Delete user',
+    parameters: {
+      userId: {
+        description: 'The user ID'
+      }
+    },
+    responses: [
+      {
+        statusCode: 204,
+        description: 'User deleted'
+      }
+    ]
+  }
+]);
+```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Please see our [Contributing Guide](CONTRIBUTING.md) for details on how to contribute to this project.
 
 ## License
 
-MIT License
+MIT

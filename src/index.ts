@@ -1,6 +1,8 @@
 import { Project } from 'ts-morph';
 import { OpenAPIObject, PathItemObject, OperationObject, SchemaObject, SchemaObjectType, ParameterObject, SecuritySchemeObject, ServerObject, ResponseObject } from 'openapi3-ts';
-import { RouteDefinition, SecurityScheme, ServerConfiguration, ResponseDefinition, PathParameterDefinition, QueryParameter, HeaderDefinition, ServerVariable } from './types';
+import { RouteDefinition, SecurityScheme, ServerConfiguration, ResponseDefinition, PathParameterDefinition, QueryParameter, HeaderDefinition, ServerVariable, GeneratorConfig } from './types';
+import * as path from 'path';
+import { glob } from 'glob';
 
 // Re-export types
 export type {
@@ -11,42 +13,78 @@ export type {
   PathParameterDefinition,
   QueryParameter,
   HeaderDefinition,
-  ServerVariable
+  ServerVariable,
+  GeneratorConfig
 } from './types';
 
 export class OpenAPIGenerator {
-  private spec: OpenAPIObject = {
-    openapi: '3.0.0',
-    info: {
-      title: 'Lambda API',
-      version: '1.0.0'
-    },
-    paths: {},
-    components: {
-      schemas: {},
-      securitySchemes: {}
-    },
-    servers: []
-  };
-
-  private project: Project;
+  private spec: OpenAPIObject;
+  private project!: Project;
   private typeChecker: any;
 
-  constructor(title?: string, version?: string, sourceFiles?: string[]) {
-    if (title) this.spec.info.title = title;
-    if (version) this.spec.info.version = version;
+  private constructor() {
+    // Initialize empty spec
+    this.spec = {
+      openapi: '3.0.0',
+      info: {
+        title: 'Lambda API',
+        version: '1.0.0'
+      },
+      paths: {},
+      components: {
+        schemas: {},
+        securitySchemes: {}
+      },
+      servers: []
+    };
+  }
 
+  static async create(config: GeneratorConfig): Promise<OpenAPIGenerator> {
+    const generator = new OpenAPIGenerator();
+    await generator.initialize(config);
+    return generator;
+  }
+
+  private async initialize(config: GeneratorConfig): Promise<void> {
+    // Set API info
+    if (config.title) this.spec.info.title = config.title;
+    if (config.version) this.spec.info.version = config.version;
+
+    // Initialize ts-morph project
     this.project = new Project({
       tsConfigFilePath: 'tsconfig.json',
     });
-    
-    // Add source files if provided, otherwise use default
-    if (sourceFiles && sourceFiles.length > 0) {
-      sourceFiles.forEach(file => this.project.addSourceFileAtPath(file));
-    } else {
-      this.project.addSourceFileAtPath('src/types.ts');
-    }
-    
+
+    // Add source files based on project configuration
+    const { rootDir, include, exclude = [] } = config.project;
+    const absoluteRootDir = path.resolve(process.cwd(), rootDir);
+
+    // Convert include patterns to absolute paths
+    const includePatterns = include.map(pattern => 
+      path.join(absoluteRootDir, pattern)
+    );
+
+    // Convert exclude patterns to absolute paths
+    const excludePatterns = exclude.map(pattern => 
+      path.join(absoluteRootDir, pattern)
+    );
+
+    // Find all matching files
+    const sourceFiles = await Promise.all(
+      includePatterns.map(pattern => 
+        glob(pattern, { ignore: excludePatterns })
+      )
+    ).then(results => results.flat());
+
+    // Add unique files to the project
+    [...new Set(sourceFiles)].forEach(file => {
+      try {
+        this.project.addSourceFileAtPath(file);
+      } catch (error: any) {
+        console.warn(`Warning: Could not add source file ${file}: ${error.message}`);
+      }
+    });
+
     const program = this.project.getProgram();
     this.typeChecker = program.getTypeChecker();
   }

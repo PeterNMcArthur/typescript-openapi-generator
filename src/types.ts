@@ -1,4 +1,3 @@
-
 export type ResponseDefinition = {
   statusCode: number;
   description: string;
@@ -74,4 +73,16 @@ export type RouteDefinition = {
   };
   security?: string[];
   responses: ResponseDefinition[];
+};
+
+export type ProjectConfig = {
+  rootDir: string;
+  include: string[];
+  exclude?: string[];
+};
+
+export type GeneratorConfig = {
+  title?: string;
+  version?: string;
+  project: ProjectConfig;
 };
