@@ -1,6 +1,6 @@
 import { SchemaObject, ParameterObject, SecuritySchemeObject } from 'openapi3-ts';
 import OpenAPIGenerator from '../index';
-import { RouteDefinition, UserList } from '../types';
+import { RouteDefinition } from '../types';
 
 describe('OpenAPIGenerator', () => {
   it('should create a basic OpenAPI specification', () => {

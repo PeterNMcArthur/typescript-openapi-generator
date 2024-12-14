@@ -1,6 +1,18 @@
 import { Project } from 'ts-morph';
 import { OpenAPIObject, PathItemObject, OperationObject, SchemaObject, SchemaObjectType, ParameterObject, SecuritySchemeObject, ServerObject, ResponseObject } from 'openapi3-ts';
-import { RouteDefinition, SecurityScheme, ServerConfiguration } from './types';
+import { RouteDefinition, SecurityScheme, ServerConfiguration, ResponseDefinition, PathParameterDefinition, QueryParameter, HeaderDefinition, ServerVariable } from './types';
+
+// Re-export types
+export type {
+  RouteDefinition,
+  SecurityScheme,
+  ServerConfiguration,
+  ResponseDefinition,
+  PathParameterDefinition,
+  QueryParameter,
+  HeaderDefinition,
+  ServerVariable
+} from './types';
 
 export class OpenAPIGenerator {
   private spec: OpenAPIObject = {
