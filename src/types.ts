@@ -24,6 +24,10 @@ export type CreateUserRequest = {
   email: string;
 };
 
+export type DeleteUserRequest = {
+  userId: number;
+};
+
 export type Post = {
   id: number;
   userId: number;

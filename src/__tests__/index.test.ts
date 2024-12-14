@@ -1,6 +1,6 @@
 import { SchemaObject, ParameterObject, SecuritySchemeObject } from 'openapi3-ts';
 import OpenAPIGenerator from '../index';
-import { UserList } from '../types';
+import { RouteDefinition, UserList } from '../types';
 
 describe('OpenAPIGenerator', () => {
   it('should create a basic OpenAPI specification', () => {
@@ -346,5 +346,93 @@ describe('OpenAPIGenerator', () => {
     expect(spec.servers).toHaveLength(2);
     expect(spec.servers?.[0]?.url).toBe('https://api.example.com/v1');
     expect(spec.servers?.[1]?.variables?.environment?.default).toBe('staging');
+  });
+
+  it('should add multiple routes using addRoutes method', () => {
+    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    
+    const routes: RouteDefinition[] = [
+        {
+            path: '/users',
+            method: 'get',
+            description: 'List users',
+            responses: [{ statusCode: 200, description: 'Success', type: 'UserList' }]
+        },
+        {
+            path: '/users',
+            method: 'post',
+            description: 'Create user',
+            requestType: 'CreateUserRequest',
+            responses: [{ statusCode: 201, description: 'Created', type: 'User' }]
+        }
+    ];
+
+    generator.addRoutes(routes);
+    const spec = generator.generateSpec();
+
+    expect(spec.paths['/users'].get).toBeDefined();
+    expect(spec.paths['/users'].post).toBeDefined();
+  });
+
+  it('should not alter spec when addRoutes is called with an empty array', () => {
+    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    
+    generator.addRoutes([]);
+    const spec = generator.generateSpec();
+
+    expect(spec.paths).toEqual({});
+  });
+
+  it('should handle multiple route types correctly', () => {
+    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    
+    const routes: RouteDefinition[] = [
+        {
+            path: '/users/{userId}',
+            method: 'get',
+            description: 'Get user by ID',
+            responses: [{ statusCode: 200, description: 'Success', type: 'User' }]
+        },
+        {
+            path: '/users',
+            method: 'delete',
+            description: 'Delete user',
+            requestType: 'DeleteUserRequest',
+            responses: [{ statusCode: 204, description: 'No Content' }]
+        }
+    ];
+
+    generator.addRoutes(routes);
+    const spec = generator.generateSpec();
+
+    expect(spec.paths['/users/{userId}'].get).toBeDefined();
+    expect(spec.paths['/users'].delete).toBeDefined();
+  });
+
+  it('should validate responses for added routes', () => {
+    const generator = new OpenAPIGenerator('Test API', '1.0.0');
+    
+    const routes: RouteDefinition[] = [
+        {
+            path: '/users',
+            method: 'get',
+            description: 'Get users',
+            responses: [
+                {
+                    statusCode: 200,
+                    description: 'Successfully retrieved users',
+                    type: 'UserList'
+                }
+            ]
+        }
+    ];
+
+    generator.addRoutes(routes);
+    const spec = generator.generateSpec();
+    const schema = spec.paths['/users'].get.responses['200'].content['application/json'].schema;
+
+    expect(schema).toBeDefined();
+    expect(schema.type).toBe('array');
+    expect(schema.items).toBeDefined();
   });
 });

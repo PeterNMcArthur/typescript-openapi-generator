@@ -1,6 +1,6 @@
-import { Project, SyntaxKind } from 'ts-morph';
+import { Project } from 'ts-morph';
 import { OpenAPIObject, PathItemObject, OperationObject, SchemaObject, SchemaObjectType, ParameterObject, SecuritySchemeObject, ServerObject, ResponseObject } from 'openapi3-ts';
-import { RouteDefinition, ResponseDefinition, PathParameterDefinition, SecurityScheme, ServerConfiguration } from './types';
+import { RouteDefinition, SecurityScheme, ServerConfiguration } from './types';
 
 export class OpenAPIGenerator {
   private spec: OpenAPIObject = {
@@ -164,6 +164,16 @@ export class OpenAPIGenerator {
 
     pathItem[route.method] = operation;
     return this;
+  }
+
+  addRoutes(routes: RouteDefinition[]): void {
+    if (!Array.isArray(routes)) {
+      throw new Error("Routes must be an array");
+    }
+
+    for (const route of routes) {
+      this.addRoute(route);
+    }
   }
 
   private extractTypeSchema(typeName: string): SchemaObject {
